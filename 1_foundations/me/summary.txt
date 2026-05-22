@@ -1,2 +1,7 @@
-My name is Venkata Vikranth Jannatha. I'm an Graduate student and I am passionate on software engineer and data scientist. I'm originally from Hyderabad, India, but I moved to Cape Town in 2015.
-I love all playing sports and reading books. I am someone who is passionate and ambitious and bit of introvert and extrovert personality and more importantly loves to sleep.
+My name is Venkata Vikranth Jannatha. I am a data science graduate from Emeris (Cape Town) with high distinction results and hands-on software development experience.
+
+I have 11 months of professional experience as a Junior Software Developer at DigiCall, where I worked on SQL queries, database maintenance, SQL Server optimization, bug fixes, and migration support from ASPX to ASP.NET.
+
+My technical strengths include Python, SQL, Pandas, Scikit-learn, TensorFlow, C#, and ASP.NET. I have built practical machine learning and agentic AI projects, including customer churn prediction, brain tumor image classification, NLP authorship attribution, multi-agent email generation, and financial research automation.
+
+I am based in Hyderabad, India, have immediate joining availability, and am currently seeking junior data scientist or AI/data-focused software roles where I can contribute to data-driven decision making.
