@@ -5,6 +5,7 @@ import os
 import requests
 from pypdf import PdfReader
 import gradio as gr
+from pathlib import Path
 
 
 load_dotenv(override=True)
@@ -75,10 +76,27 @@ tools = [{"type": "function", "function": record_user_details_json},
 
 class Me:
 
+    def _resolve_cv_path(self):
+        configured_path = os.getenv("CV_PATH")
+        if configured_path:
+            path = Path(configured_path)
+            if not path.is_absolute():
+                path = Path(__file__).parent / path
+            if path.exists():
+                return path
+
+        me_dir = Path(__file__).parent / "me"
+        pdf_files = sorted(me_dir.glob("*.pdf"), key=lambda p: p.stat().st_mtime, reverse=True)
+        if not pdf_files:
+            raise FileNotFoundError(f"No PDF found in {me_dir}")
+        return pdf_files[0]
+
     def __init__(self):
         self.openai = OpenAI()
         self.name = "Venkata Vikranth Jannatha"
-        reader = PdfReader("me/VVJ.pdf")
+        cv_path = self._resolve_cv_path()
+        print(f"Loading CV from: {cv_path}", flush=True)
+        reader = PdfReader(str(cv_path))
         self.linkedin = ""
         for page in reader.pages:
             text = page.extract_text()
