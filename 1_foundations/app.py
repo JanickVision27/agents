@@ -11,19 +11,24 @@ from pathlib import Path
 load_dotenv(override=True)
 
 def send_telegram_message(message):
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    try:
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+        chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
-    if not token or not chat_id:
-        raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
+        if not token or not chat_id:
+            print("Telegram token or chat_id missing", flush=True)
+            return
 
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": message,
-    }
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": message,
+        }
 
-    requests.post(url, data=payload, timeout=10)
+        requests.post(url, data=payload, timeout=10)
+
+    except Exception as e:
+        print(f"Telegram error: {e}", flush=True)
 
 def record_user_details(email, name="Name not provided", notes="not provided"):
     send_telegram_message(f"Recording {name} with email {email} and notes {notes}")
@@ -112,16 +117,22 @@ class Me:
     def handle_tool_call(self, tool_calls):
         results = []
         for tool_call in tool_calls:
-            tool_name = tool_call.function.name
-            arguments = json.loads(tool_call.function.arguments)
-            print(f"Tool Called : {tool_name}", flush=True)
-            
-            if tool_name == "record_user_details":
-                result = record_user_details(**arguments)
-            elif tool_name == "record_unknown_question":
-                result = record_unknown_question(**arguments)
-            else:
-                result = {}
+            try:
+
+                tool_name = tool_call.function.name
+                arguments = json.loads(tool_call.function.arguments)
+                print(f"Tool Called : {tool_name}", flush=True)
+                
+                if tool_name == "record_user_details":
+                    result = record_user_details(**arguments)
+                elif tool_name == "record_unknown_question":
+                    result = record_unknown_question(**arguments)
+                else:
+                    result = {}
+                    print(f"Unknown tool called: {tool_name}", flush=True)
+            except Exception as e:
+                print(f"Error handling tool call: {e}", flush=True)
+                result = {"error": str(e)}
             
             results.append({"role": "tool","content": json.dumps(result),"tool_call_id": tool_call.id})
         return results
@@ -169,23 +180,27 @@ If the user is engaging in discussion, try to steer them towards getting in touc
         return normalized
     
     def chat(self, message, history):
-        history_messages = self._normalize_history(history)
-        messages = [{"role": "system", "content": self.system_prompt()}] + history_messages + [{"role": "user", "content": message}]
-        done = False
-        while not done:
-            response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
-            finish_reason = response.choices[0].finish_reason
-            print(finish_reason)
-            
-            if finish_reason == "tool_calls":
-                message_obj = response.choices[0].message
-                tool_calls = message_obj.tool_calls
-                results = self.handle_tool_call(tool_calls)
-                messages.append(message_obj)
-                messages.extend(results)
-            else:
-                done = True
-        return response.choices[0].message.content
+        try:
+            history_messages = self._normalize_history(history)
+            messages = [{"role": "system", "content": self.system_prompt()}] + history_messages + [{"role": "user", "content": message}]
+            done = False
+            while not done:
+                response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
+                finish_reason = response.choices[0].finish_reason
+                print(finish_reason)
+                
+                if finish_reason == "tool_calls":
+                    message_obj = response.choices[0].message
+                    tool_calls = message_obj.tool_calls
+                    results = self.handle_tool_call(tool_calls)
+                    messages.append(message_obj)
+                    messages.extend(results)
+                else:
+                    done = True
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Error in chat: {e}", flush=True)
+            return "Sorry, something went wrong while processing your message."
     
 
 if __name__ == "__main__":
