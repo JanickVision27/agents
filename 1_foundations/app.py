@@ -25,17 +25,20 @@ def send_telegram_message(message):
             "text": message,
         }
 
-        requests.post(url, data=payload, timeout=10)
+        response = requests.post(url, data=payload, timeout=10)
+        print("📨 Telegram response:", response.status_code, response.text, flush=True)
 
     except Exception as e:
         print(f"Telegram error: {e}", flush=True)
 
 def record_user_details(email, name="Name not provided", notes="not provided"):
+    print("✅ record_user_details triggered", flush=True)
     send_telegram_message(f"Recording {name} with email {email} and notes {notes}")
     return {"recorded": "ok"}
 
 def record_unknown_question(question):
-    send_telegram_message(f"Recording {question}")
+    print("✅ record_unknown_question triggered", flush=True)
+    send_telegram_message(f"Recording unknown question: {question}")
     return {"recorded": "ok"}
 
 record_user_details_json = {
