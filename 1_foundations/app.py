@@ -193,7 +193,7 @@ If the user is engaging in discussion, try to steer them towards getting in touc
                     message_obj = response.choices[0].message
                     tool_calls = message_obj.tool_calls
                     results = self.handle_tool_call(tool_calls)
-                    messages.append(message_obj)
+                    messages.append(message_obj.model_dump())
                     messages.extend(results)
                 else:
                     done = True
