@@ -24,7 +24,7 @@ def send_telegram_message(message):
             "chat_id": chat_id,
             "text": message,
         }
-        response = requests.post(url, json=payload, timeout=30)
+        response = requests.post(url, json=payload, timeout=10)
         print("📨 Telegram response:", response.status_code, response.text, flush=True)
 
     except Exception as e:
