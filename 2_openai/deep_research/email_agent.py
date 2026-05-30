@@ -53,6 +53,8 @@ email_agent = Agent(
     model="gpt-4o-mini",
 )
 
+
+# Debug helper – Just for testing purpose that's all
 def send_email_direct(subject: str, html_body: str):
     from_email = os.environ.get("EMAIL_FROM")
     to_email = os.environ.get("EMAIL_TO")
