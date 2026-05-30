@@ -1,31 +1,67 @@
 import os
 from typing import Dict
-
-import sendgrid
-from sendgrid.helpers.mail import Email, Mail, Content, To
+import resend
+from dotenv import load_dotenv
 from agents import Agent, function_tool
 
+load_dotenv()
+
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 @function_tool
 def send_email(subject: str, html_body: str) -> Dict[str, str]:
     """Send an email with the given subject and HTML body"""
-    sg = sendgrid.SendGridAPIClient(api_key=os.environ.get("SENDGRID_API_KEY"))
-    from_email = Email("ed@edwarddonner.com")  # put your verified sender here
-    to_email = To("ed.donner@gmail.com")  # put your recipient here
-    content = Content("text/html", html_body)
-    mail = Mail(from_email, to_email, subject, content).get()
-    response = sg.client.mail.send.post(request_body=mail)
-    print("Email response", response.status_code)
-    return "success"
+
+    from_email = os.environ.get("EMAIL_FROM")
+    to_email = os.environ.get("EMAIL_TO")
+
+    if not resend.api_key:
+        raise ValueError("Resend API key is not set in environment variables.")
+    
+    if not from_email or not to_email:
+        raise ValueError("Email sender and recipient must be set in environment variables.")
+    
+    response = resend.Emails.send({
+        "from": from_email,
+        "to": [to_email],
+        "subject": subject,
+        "html": html_body,
+    })
+
+    print("Resend Response:", response)
+
+    return {"status": "sent"}
 
 
-INSTRUCTIONS = """You are able to send a nicely formatted HTML email based on a detailed report.
-You will be provided with a detailed report. You should use your tool to send one email, providing the 
-report converted into clean, well presented HTML with an appropriate subject line."""
+
+INSTRUCTIONS = """
+You are responsible for sending a formatted HTML email.
+
+You will receive a detailed markdown report.
+
+You must:
+1. Generate a professional subject line.
+2. Convert the markdown report into clean HTML.
+3. Call the send_email tool exactly once with subject and html_body.
+Do not explain anything. Just call the tool.
+"""
 
 email_agent = Agent(
-    name="Email agent",
+    name="EmailAgent",
     instructions=INSTRUCTIONS,
     tools=[send_email],
     model="gpt-4o-mini",
 )
+
+def send_email_direct(subject: str, html_body: str):
+    from_email = os.environ.get("EMAIL_FROM")
+    to_email = os.environ.get("EMAIL_TO")
+
+    response = resend.Emails.send({
+        "from": from_email,
+        "to": [to_email],
+        "subject": subject,
+        "html": html_body,
+    })
+
+    print("✅ Direct Resend response:", response)
