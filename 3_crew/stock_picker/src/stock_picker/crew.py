@@ -5,7 +5,8 @@ from typing import List
 
 from crewai_tools import SerperDevTool
 from pydantic import Field, BaseModel
-from .tools.push_tool import PushNotificationTool
+# from .tools.push_tool import PushNotificationTool
+from .tools.push_tool import TelegramNotificationTool
 
 
 class TrendingCompany(BaseModel):
@@ -47,7 +48,7 @@ class StockPicker():
 
     @agent
     def stock_picker(self) -> Agent:
-        return Agent(config = self.agents_config['stock_picker'], tools = [PushNotificationTool()])
+        return Agent(config = self.agents_config['stock_picker'], tools = [TelegramNotificationTool()])
     
     # Define Tasks
     @task
