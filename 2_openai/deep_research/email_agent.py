@@ -52,18 +52,3 @@ email_agent = Agent(
     tools=[send_email],
     model="gpt-4o-mini",
 )
-
-
-# Debug helper – Just for testing purpose that's all
-def send_email_direct(subject: str, html_body: str):
-    from_email = os.environ.get("EMAIL_FROM")
-    to_email = os.environ.get("EMAIL_TO")
-
-    response = resend.Emails.send({
-        "from": from_email,
-        "to": [to_email],
-        "subject": subject,
-        "html": html_body,
-    })
-
-    print("✅ Direct Resend response:", response)
