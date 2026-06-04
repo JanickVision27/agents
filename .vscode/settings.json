@@ -1,5 +1,9 @@
 {
     "chat.tools.terminal.autoApprove": {
-        "&": true
+        "&": true,
+        "/^& 'C:\\\\Personal\\\\Work\\\\agents\\\\3_crew\\\\coder\\\\\\.venv\\\\Scripts\\\\python\\.exe' -c \"from coder\\.crew import Coder; c = Coder\\(\\)\\.crew\\(\\); print\\(type\\(c\\)\\.__name__, len\\(c\\.agents\\), len\\(c\\.tasks\\)\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }
